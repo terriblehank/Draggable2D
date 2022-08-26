@@ -13,6 +13,10 @@ public enum TYPE
 [RequireComponent(typeof(Collider2D))]
 public class Draggable2D : MonoBehaviour
 {
+    public delegate void Callback();
+    Callback mouseDown;
+    Callback mouseUp;
+
     public TYPE type = TYPE.FREE;
     public bool repositionOnRelease;    //松开鼠标时是否返回初始位置
 
@@ -39,6 +43,16 @@ public class Draggable2D : MonoBehaviour
 
     }
 
+    public void SetMouseDownCallback(Callback c)
+    {
+        mouseDown = c;
+    }
+
+    public void SetMouseUpCallback(Callback c)
+    {
+        mouseUp = c;
+    }
+
     Vector3 clickPos;       //用以记录鼠标点下的位置
     Vector3 positionOffset;     //用以保存鼠标和transform偏差的计算结果
 
@@ -47,6 +61,7 @@ public class Draggable2D : MonoBehaviour
         clickPos = MousePos();
         Vector3 mousePosition = MousePos();
         positionOffset = mousePosition - transform.position;
+        if (mouseDown != null) mouseDown.Invoke();
     }
 
     private void OnMouseDrag()
@@ -57,7 +72,7 @@ public class Draggable2D : MonoBehaviour
         {
             Vector3 temp = clickPos - mousePosition;
             isVertical = Mathf.Abs(temp.y) > Mathf.Abs(temp.x);
-            if (temp!=Vector3.zero)
+            if (temp != Vector3.zero)
             {
                 dragging = true;
             }
@@ -77,6 +92,7 @@ public class Draggable2D : MonoBehaviour
             transform.position = originPos;
         }
         dragging = false;
+        if (mouseUp != null) mouseUp.Invoke();
     }
 
     Vector3 MousePos()
