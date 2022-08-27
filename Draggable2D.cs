@@ -21,6 +21,9 @@ namespace HS.Tools
         Callback mouseDown;
         Callback mouseUp;
 
+        [SerializeField]
+        float mouseBuffer = 0.1f;   //鼠标移动超过这个距离才会开始拖拽
+
         public TYPE type = TYPE.FREE;
 
         public bool limiting;   //是否限制拖拽的范围
@@ -76,7 +79,6 @@ namespace HS.Tools
             clicked = true;
             clickPos = MousePos();
             Vector3 mousePosition = MousePos();
-            positionOffset = mousePosition - transform.position;
             if (mouseDown != null) mouseDown.Invoke();
         }
 
@@ -88,11 +90,16 @@ namespace HS.Tools
 
             if (!dragging)//进入了拖拽事件但鼠标位置还没有开始移动的状态
             {
-                Vector3 temp = clickPos - mousePosition;
-                isVertical = Mathf.Abs(temp.y) > Mathf.Abs(temp.x);
-                if (temp != Vector3.zero)
+                if (Vector3.Distance(mousePosition, clickPos) >= mouseBuffer)
                 {
-                    dragging = true;
+                    positionOffset = mousePosition - transform.position;
+
+                    Vector3 temp = clickPos - mousePosition;
+                    isVertical = Mathf.Abs(temp.y) > Mathf.Abs(temp.x);
+                    if (temp != Vector3.zero)
+                    {
+                        dragging = true;
+                    }
                 }
             }
 
